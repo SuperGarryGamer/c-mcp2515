@@ -58,6 +58,15 @@ int initialize() {
     printf("Resetting MCP2515\n");
     reset();
     print_buffers();
+
+    // Change from configuration mode to normal mode
+    clear_tx_buffer();
+    trx.len = 3; // Instruction, address, one byte of data
+    tx_buffer[0] = 0b00000010; // WRITE
+    tx_buffer[1] = 0x0F; // CANCTRL
+    tx_buffer[2] = 0; // All zeros :3
+    ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
+    trx.len = sizeof(tx_buffer);
 }
 
 int reset() {
