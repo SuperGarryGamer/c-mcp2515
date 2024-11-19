@@ -109,6 +109,9 @@ int transmit_can_frame(struct can_frame* frame) {
     for (int i = 0; i < frame->n_bytes; i++) {
         tx_buffer[i + 6] = frame->data[i]; // TXB0D0 ... TXB0D[n_bytes]
     }
+    ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
+    clear_tx_buffer();
+    tx_buffer[0] = 10000001; // Request to send
     return ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
 }
 
@@ -141,7 +144,7 @@ void clear_tx_buffer() {
 }
 
 void print_frame(struct can_frame* frame) {
-    printf("SID: %d\n LENGTH:%d\nDATA: [", frame->sid, frame->n_bytes);
+    printf("SID: %d\nLENGTH:%d\nDATA: [", frame->sid, frame->n_bytes);
     for (int i = 0; i < frame->n_bytes -1; i++) {
         printf("%d, ", frame->data[i]);
     }
