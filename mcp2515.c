@@ -65,8 +65,16 @@ int initialize() {
     tx_buffer[0] = 0b00000010; // WRITE
     tx_buffer[1] = 0x0F; // CANCTRL
     tx_buffer[2] = 0; // All zeros :3
+    // tx_buffer[2] = 0x40; // Uncomment for loopback mode (works)
     ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
+    // Reset RXB0CTRL
     trx.len = sizeof(tx_buffer);
+    tx_buffer[1] = 0x60; // RXB0CTRL
+    tx_buffer[2] = 0x60; // Turn off filters
+    for (int i = 3; i < 13; i++) {
+    	tx_buffer[i] = 66 + i;
+    }
+    ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
 }
 
 int reset() {
@@ -120,7 +128,7 @@ int transmit_can_frame(struct can_frame* frame) {
     }
     ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
     clear_tx_buffer();
-    tx_buffer[0] = 10000001; // Request to send
+    tx_buffer[0] = 0b10000001; // Request to send
     return ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
 }
 
