@@ -168,6 +168,7 @@ void print_frame(struct can_frame* frame) {
     printf("%d]\n", frame->data[frame->n_bytes - 1]);
 }
 
+/*
 // For testing
 int main() {
     initialize();
@@ -193,7 +194,7 @@ int main() {
     deinitialize();
     return 0;
 }
-
+*/
 
 
 
