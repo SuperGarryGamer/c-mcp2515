@@ -19,7 +19,7 @@ struct can_frame {
 };
 
 int initialize();
-int reset;
+int reset();
 int deinitialize();
 void print_buffers();
 int transmit_can_frame(struct can_frame* frame);
