@@ -1,3 +1,5 @@
+#include "mcp2515.h"
+
 #include <stdio.h>
 #include <stdint.h>
 #include <fcntl.h>
@@ -13,18 +15,6 @@
 
 const uint32_t SPEED = 10000000; // 10 MHz SPI
 
-uint8_t tx_buffer[14]; // Instruction byte + all the necessary MCP2515 registers
-uint8_t rx_buffer[14];
-struct spi_ioc_transfer trx;
-int dev_file;
-int dev_response;
-const uint32_t SPI_MODE = SPI_MODE_0;
-
-struct can_frame {
-    uint16_t sid; // 0 <= sid <= 0x7FF
-    uint8_t n_bytes; // 0 <= n_bytes <= 8
-    uint8_t* data; // Array of 8 bytes
-};
 
 int initialize() {
     trx.rx_buf = rx_buffer;
@@ -80,15 +70,14 @@ int initialize() {
 int reset() {
     tx_buffer[0] = 0b11000000; // RESET instruction
     dev_response = ioctl(dev_file, SPI_IOC_MESSAGE(1), &trx);
-    return 0;
+    return dev_response;
 }
 
 int deinitialize() {
-    close(dev_file);
-    return 0;
+    return close(dev_file);
 }
 
-int print_buffers() {
+void print_buffers() {
     printf("RX: [");
     for (int i = 0; i < sizeof(rx_buffer) - 1; i++) {
         printf("%d, ", rx_buffer[i]);
@@ -100,7 +89,6 @@ int print_buffers() {
         printf("%d, ", tx_buffer[i]);
     }
     printf("%d]\n", tx_buffer[sizeof(tx_buffer) - 1]);
-    return 0;
 }
 
 int transmit_can_frame(struct can_frame* frame) {
